@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- ========================= -->
+    <!-- SUMMARY -->
+    <!-- ========================= -->
+
+    <div class="card summary-card">
+
+        <div class="card-body text-center">
+
+            <div class="summary-icon">
+
+                📄
+
+            </div>
+
+            <div class="summary-title">
+
+                PLAINTEXT
+
+            </div>
+
+            <div
+                class="summary-value"
+                id="plainText">
+
+                {{ input_text }}
+
+            </div>
+
+            <button
+                class="btn btn-sm btn-outline-primary mt-2"
+                onclick="copyText('plainText')">
+
+                📋 Copy
+
+            </button>
+
+            <div
+                class="summary-value"
+                id="masterKey">
+
+                {{ key_text }}
+
+            </div>
+
+            <button
+                class="btn btn-sm btn-outline-warning mt-2"
+                onclick="copyText('masterKey')">
+
+                📋 Copy
+
+            </button>
+
+            <div
+                class="summary-value"
+                id="cipherText">
+
+                {{ output_text }}
+
+            </div>
+
+            <button
+                class="btn btn-sm btn-outline-success mt-2"
+                onclick="copyText('cipherText')">
+
+                📋 Copy
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- ROUND KEYS -->
+    <!-- ========================= -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                Round Keys
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+
+                <tr>
+
+                    <th>Round</th>
+
+                    <th>Binary</th>
+
+                    <th>Hex</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for name, value in key_schedule["round_keys"].items() %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>{{ name }}</strong>
+
+                    </td>
+
+                    <td>
+                        <code>{{ "{:016b}".format(value) }}</code>
+                    </td>
+
+                    <td>
+                        <strong>{{ "{:04X}".format(value) }}</strong>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- KEY EXPANSION -->
+    <!-- ========================= -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-info text-white">
+
+            <h5 class="mb-0">
+
+                Key Expansion
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered">
+
+                <thead>
+
+                <tr>
+
+                    <th>Word</th>
+
+                    <th>Binary</th>
+
+                    <th>Hex</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for name, value in key_schedule["words"].items() %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+
+                            {{ name }}
+
+                        </strong>
+
+                    </td>
+
+                    <td>
+                        <code>{{ "{:08b}".format(value) }}</code>
+                    </td>
+
+                    <td>{{ "{:02X}".format(value) }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- STEP BY STEP -->
+    <!-- ========================= -->
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+
+                Encryption / Decryption Process
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+        {% for step in logs %}
+
+            {% if not loop.first %}
+
+            <div class="text-center">
+
+                <h2>
+
+                    ↓
+
+                </h2>
+
+            </div>
+
+            {% endif %}
+
+            <div class="card step-card shadow-sm mb-4">
+
+                <div class="card-header">
+
+                    <strong>
+
+                        Step {{ loop.index }}
+
+                    </strong>
+
+                    -
+
+                    {% if "Sub" in step["title"] %}
+
+                        <span class="badge bg-warning text-dark">
+
+                    {% elif "Mix" in step["title"] %}
+
+                        <span class="badge bg-danger">
+
+                    {% elif "Shift" in step["title"] %}
+
+                        <span class="badge bg-info text-dark">
+
+                    {% elif "AddRoundKey" in step["title"] %}
+
+                        <span class="badge bg-success">
+
+                    {% else %}
+
+                        <span class="badge bg-secondary">
+
+                    {% endif %}
+
+                        {{ step["title"] }}
+
+                    </span>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-8">
+
+                            <table class="table table-bordered">
+
+                                <tr>
+
+                                    <th width="20%">
+
+                                        Binary
+
+                                    </th>
+
+                                    <td>
+
+                                        <code>
+
+                                            {{ step["binary"] }}
+
+                                        </code>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+
+                                        Hex
+
+                                    </th>
+
+                                    <td>
+
+                                        {{ step["hex"] }}
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <table class="table table-bordered text-center">
+
+                                <tr>
+
+                                    <td>
+
+                                        <h3>
+
+                                            {{ step["matrix"][0][0] }}
+
+                                        </h3>
+
+                                    </td>
+
+                                    <td>
+
+                                        <h3>
+
+                                            {{ step["matrix"][0][1] }}
+
+                                        </h3>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <td>
+
+                                        <h3>
+
+                                            {{ step["matrix"][1][0] }}
+
+                                        </h3>
+
+                                    </td>
+
+                                    <td>
+
+                                        <h3>
+
+                                            {{ step["matrix"][1][1] }}
+
+                                        </h3>
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <table class="table table-bordered text-center matrix"></table>
+
+        {% endfor %}
+
+        </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+
+        <a href="/"
+
+           class="btn btn-secondary">
+
+            ← Kembali
+
+        </a>
+
+    </div>
+
+    <a
+        href="/export_pdf"
+        class="btn btn-danger">
+
+        📄 Export PDF
+
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-primary text-white">
+
+                <h3 class="mb-0">
+
+                    Enkripsi & Dekripsi S-AES
+
+                </h3>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if error %}
+
+                <div class="alert alert-danger">
+
+                    {{ error }}
+
+                </div>
+
+                {% endif %}
+
+                <form method="POST">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Plaintext / Ciphertext
+
+                        </label>
+
+                        <input
+                            class="form-control"
+                            name="plaintext"
+                            placeholder="Contoh: 6F6B atau 0110111101101011"
+                            required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Key (16-bit)
+
+                        </label>
+
+                        <input
+                            class="form-control"
+                            name="key"
+                            placeholder="Contoh: A73B atau 1010011100111011"
+                            required>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Operasi
+
+                        </label>
+
+                        <select
+                            class="form-select"
+                            name="operation">
+
+                            <option value="encrypt">
+
+                                Encrypt
+
+                            </option>
+
+                            <option value="decrypt">
+
+                                Decrypt
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <button
+                        class="btn btn-primary w-100">
+
+                        Proses
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
